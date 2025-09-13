@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: python-app-rules
+  labels:
+    release: prometheus-stack
+spec:
+  groups:
+  - name: python-app-alerts
+    rules:
+    - alert: PythonAppRestartingTooOften
+      expr: increase(kube_pod_container_status_restarts_total{namespace="default", pod=~"python-web-.*"}[5m]) > 1
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Python app is restarting too often"
+        description: "Container restarts > 1 within 5m in default namespace for pods matching python-web-*"
